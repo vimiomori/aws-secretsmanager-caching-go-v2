@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
+	"github.com/vimiomori/aws-secretsmanager-caching-go-v2/secretsmanageriface"
 )
 
 const (

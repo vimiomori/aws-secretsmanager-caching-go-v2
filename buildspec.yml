@@ -2,8 +2,8 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      golang: 1.12
+      golang: 1.20
   build:
     commands:
-      - export GO111MODULE=on && go test github.com/aws/aws-secretsmanager-caching-go/secretcache -v
-      - export GO111MODULE=on && go test github.com/aws/aws-secretsmanager-caching-go/scintegtests -v
+      - export GO111MODULE=on && go test github.com/vimiomori/aws-secretsmanager-caching-go-v2/secretcache -v
+      - export GO111MODULE=on && go test github.com/vimiomori/aws-secretsmanager-caching-go-v2/scintegtests -v

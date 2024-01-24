@@ -18,9 +18,8 @@ import (
 	"math"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+	"github.com/vimiomori/aws-secretsmanager-caching-go-v2/secretsmanageriface"
 )
 
 // cacheVersion is the cache object for a secret version.
@@ -51,7 +50,6 @@ func (cv *cacheVersion) refresh(ctx context.Context) {
 	cv.refreshNeeded = false
 
 	result, err := cv.executeRefresh(ctx)
-
 	if err != nil {
 		cv.errorCount++
 		cv.err = err
@@ -65,7 +63,6 @@ func (cv *cacheVersion) refresh(ctx context.Context) {
 	cv.setWithHook(result)
 	cv.err = nil
 	cv.errorCount = 0
-
 }
 
 // executeRefresh performs the actual refresh of the cached secret information.
@@ -75,7 +72,7 @@ func (cv *cacheVersion) executeRefresh(ctx context.Context) (*secretsmanager.Get
 		SecretId:  &cv.secretId,
 		VersionId: &cv.versionId,
 	}
-	return cv.client.GetSecretValueWithContext(ctx, input, request.WithAppendUserAgent(userAgent()))
+	return cv.client.GetSecretValue(ctx, input, addUserAgent)
 }
 
 // getSecretValue gets the cached secret version value.

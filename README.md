@@ -37,15 +37,15 @@ package main
 
 import (
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
+	"github.com/vimiomori/aws-secretsmanager-caching-go-v2/secretcache"
 )
 
 var(
 	secretCache, _ = secretcache.New()
 )
 
-func HandleRequest(secretId string) string {
-	result, _ := secretCache.GetSecretString(secretId)
+func HandleRequest(ctx context.Context, secretId string) string {
+	result, _ := secretCache.GetSecretString(ctx, secretId)
 	// Use secret to connect to secured resource.
 	return "Success"
 }
@@ -89,4 +89,4 @@ We use GitHub issues for tracking bugs and caching library feature requests and 
 
 ## License
 
-This library is licensed under the Apache 2.0 License. 
+This library is licensed under the Apache 2.0 License.

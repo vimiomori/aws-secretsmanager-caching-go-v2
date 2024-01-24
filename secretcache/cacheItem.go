@@ -20,9 +20,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+	"github.com/vimiomori/aws-secretsmanager-caching-go-v2/secretsmanageriface"
 )
 
 // secretCacheItem maintains a cache of secret versions.
@@ -67,7 +66,7 @@ func (ci *secretCacheItem) getVersionId(versionStage string) (string, bool) {
 
 	for versionId, stages := range result.VersionIdsToStages {
 		for _, stage := range stages {
-			if versionStage == *stage {
+			if versionStage == stage {
 				return versionId, true
 			}
 		}
@@ -83,7 +82,7 @@ func (ci *secretCacheItem) executeRefresh(ctx context.Context) (*secretsmanager.
 		SecretId: &ci.secretId,
 	}
 
-	result, err := ci.client.DescribeSecretWithContext(ctx, input, request.WithAppendUserAgent(userAgent()))
+	result, err := ci.client.DescribeSecret(ctx, input, addUserAgent)
 
 	var maxTTL int64
 	if ci.config.CacheItemTTL == 0 {
@@ -138,7 +137,6 @@ func (ci *secretCacheItem) refresh(ctx context.Context) {
 	ci.refreshNeeded = false
 
 	result, err := ci.executeRefresh(ctx)
-
 	if err != nil {
 		ci.errorCount++
 		ci.err = err
@@ -179,7 +177,6 @@ func (ci *secretCacheItem) getSecretValue(ctx context.Context, versionStage stri
 				},
 			}
 		}
-
 	}
 	return version.getSecretValue(ctx)
 }

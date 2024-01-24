@@ -14,17 +14,15 @@
 package secretcache_test
 
 import (
+	"context"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 )
 
 // A struct to be used in unit tests as a mock Client
 type mockSecretsManagerClient struct {
-	secretsmanageriface.SecretsManagerAPI
+	*secretsmanager.Client
 	MockedGetResult         *secretsmanager.GetSecretValueOutput
 	MockedDescribeResult    *secretsmanager.DescribeSecretOutput
 	GetSecretValueErr       error
@@ -38,9 +36,9 @@ func newMockedClientWithDummyResults() (mockSecretsManagerClient, string, string
 	createDate := time.Now().Add(-time.Hour * 12) // 12 hours ago
 	versionId := getStrPtr("very-random-uuid")
 	otherVersionId := getStrPtr("other-random-uuid")
-	versionStages := []*string{getStrPtr("hello"), getStrPtr("versionStage-42"), getStrPtr("AWSCURRENT")}
-	otherVersionStages := []*string{getStrPtr("AWSPREVIOUS")}
-	versionIdsToStages := make(map[string][]*string)
+	versionStages := []string{"hello", "versionStage-42", "AWSCURRENT"}
+	otherVersionStages := []string{"AWSPREVIOUS"}
+	versionIdsToStages := make(map[string][]string)
 	versionIdsToStages[*versionId] = versionStages
 	versionIdsToStages[*otherVersionId] = otherVersionStages
 	secretId := getStrPtr("dummy-secret-name")
@@ -69,7 +67,7 @@ func newMockedClientWithDummyResults() (mockSecretsManagerClient, string, string
 }
 
 // Overrides the interface method to return dummy result.
-func (m *mockSecretsManagerClient) GetSecretValueWithContext(context aws.Context, input *secretsmanager.GetSecretValueInput, opts ...request.Option) (*secretsmanager.GetSecretValueOutput, error) {
+func (m *mockSecretsManagerClient) GetSecretValue(context.Context, *secretsmanager.GetSecretValueInput, ...func(*secretsmanager.Options)) (*secretsmanager.GetSecretValueOutput, error) {
 	m.GetSecretValueCallCount++
 
 	if m.GetSecretValueErr != nil {
@@ -80,7 +78,7 @@ func (m *mockSecretsManagerClient) GetSecretValueWithContext(context aws.Context
 }
 
 // Overrides the interface method to return dummy result.
-func (m *mockSecretsManagerClient) DescribeSecretWithContext(context aws.Context, input *secretsmanager.DescribeSecretInput, opts ...request.Option) (*secretsmanager.DescribeSecretOutput, error) {
+func (m *mockSecretsManagerClient) DescribeSecret(context.Context, *secretsmanager.DescribeSecretInput, ...func(*secretsmanager.Options)) (*secretsmanager.DescribeSecretOutput, error) {
 	m.DescribeSecretCallCount++
 
 	if m.DescribeSecretErr != nil {
